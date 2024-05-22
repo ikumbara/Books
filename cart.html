@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Online Bookstore</title>
+    <link rel="icon" type="image/x-icon" href="/255_Project/Gallery/images/favicon.png">
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/garcia" type="text/css"/>
+    <style>
+
+body {
+    font-family: 'GarciaRegular';
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    }
+
+
+.header {
+  padding: 20px;
+  background: #1abc9c;
+  color: white;
+  text-align: center;
+}
+
+
+th {
+  padding-right: 100px;
+  font-size: 20px;
+}
+
+table.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border: 2px solid #ddd;
+}
+
+table.cart-table th, table.cart-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+table.cart-table th {
+  background-color: #f2f2f2;
+}
+
+table.cart-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Total div styles */
+div#total {
+  text-align: end;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-right: 20px;
+}
+
+.button {
+  background-color: #1abc9c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background-color: #16a085;
+}
+
+footer {
+  text-align: center;
+  padding: 10px 20px;
+  background: #333;
+  color: white;
+  margin-top: auto;
+  width: 100%;
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+    nav ul {
+        text-align: center;
+    }
+    nav ul li {
+        display: block;
+        margin-top: 10px;
+    }
+}
+ </style>
+
+</head>
+<body onload="loadCart()">
+    <div class="header">
+        <table>
+            <th><a href="gallery.html">View Gallery</a></th>
+        </table>
+    </div>
+
+    <div class="main">
+        <h1 style="text-align: center;">Shopping Cart</h1>
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-table-body">
+
+            </tbody>
+        </table>
+        <div id="total">Total: $0.00</div>
+        <button class="button" onclick="checkout()">Proceed to Checkout</button>
+    </div>
+
+    <footer>
+        <p>© 2024 Online Bookstore. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function loadCart() {
+            var cart = JSON.parse(localStorage.getItem("cart") || "{}");
+            var cartTable = document.getElementById("cart-table-body");
+            var totalAmount = 0;
+            
+            if (Object.keys(cart).length > 0) {
+                Object.keys(cart).forEach(function(key) {
+                    var item = cart[key];
+                    var row = cartTable.insertRow();
+                    row.insertCell(0).innerText = key; // Book name
+                    row.insertCell(1).innerText = "$" + item.price.toFixed(2); // Book price
+                    row.insertCell(2).innerHTML = `<button class='button' onclick='changeQuantity("${key}", false)'>-</button> ${item.quantity} <button class='button' onclick='changeQuantity("${key}", true)'>+</button>`; // Quantity with buttons
+                    row.insertCell(3).innerText = "$" + (item.price * item.quantity).toFixed(2); // Total price for the book
+                    row.insertCell(4).innerHTML = `<button class='button' onclick='removeItem("${key}")'>Remove</button>`; // Remove button
+                    totalAmount += item.price * item.quantity;
+                });
+            } else {
+                var row = cartTable.insertRow();
+                row.insertCell(0).setAttribute('colspan', 5);
+                row.insertCell(0).innerText = "Your cart is empty.";
+            }
+
+            document.getElementById("total").innerText = "Total: $" + totalAmount.toFixed(2);
+        }
+
+        function changeQuantity(key, increase) {
+            var cart = JSON.parse(localStorage.getItem("cart") || "{}");
+            if (increase) {
+                cart[key].quantity++;
+            } else if (cart[key].quantity > 1) {
+                cart[key].quantity--;
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            location.reload(); // Refresh page to update the cart display
+        }
+
+        function removeItem(key) {
+            var cart = JSON.parse(localStorage.getItem("cart") || "{}");
+            delete cart[key];
+            localStorage.setItem("cart", JSON.stringify(cart));
+            location.reload(); // Refresh page to update the cart display
+        }
+
+        function checkout() {
+         if (confirm("Are you sure you want to checkout and clear your cart?")) {
+        localStorage.clear(); // Clears the entire local storage, including the cart
+        document.getElementById("cart-table-body").innerHTML = ""; // Clears the table content
+        document.getElementById("total").innerText = "Total: $0.00"; // Resets the total amount displayed
+        alert("Checkout successful. Your cart is now empty.");
+         }
+         
+}
+        
+    </script>
+</body>
+</html>
